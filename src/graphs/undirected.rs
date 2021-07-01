@@ -6,22 +6,22 @@ fn read_unsigned(maybe_integer: &str) -> usize {
     )
 }
 
-pub struct Graph {
+pub struct Undirected {
     vertices: usize,
     edges: usize,
     adjacencies: Vec<Vec<usize>>,
 }
 
-impl Graph {
-    pub fn new(vertices: usize) -> Graph {
-        Graph {
+impl Undirected {
+    pub fn new(vertices: usize) -> Undirected {
+        Undirected {
             vertices,
             edges: 0,
             adjacencies: vec![Vec::new(); vertices]
         }
     }
 
-    pub fn new_from_file(filename: &str) -> Graph {
+    pub fn new_from_file(filename: &str) -> Undirected {
         // TODO: Learn how to ? multiple error types instead of panicking.
         // This function presently looks like Christmas morning.
 
@@ -31,7 +31,7 @@ impl Graph {
         let vertices = read_unsigned(lines.next().unwrap());
         let edges = read_unsigned(lines.next().unwrap());
 
-        let mut graph = Graph::new(vertices);
+        let mut graph = Undirected::new(vertices);
 
         for _ in 0..edges {
             let mut integers = lines.next().unwrap().split(' ');
@@ -68,12 +68,12 @@ mod tests {
     
     #[test]
     fn read_graph_from_file() {
-        let tiny_graph = Graph::new_from_file("./texts/very-tiny-graph.txt");
-        assert_eq!(tiny_graph.vertices(), 4);
-        assert_eq!(tiny_graph.edges(), 4);
-        assert_eq!(tiny_graph.adjacencies(0), vec![1, 0, 0]);
-        assert_eq!(tiny_graph.adjacencies(1), vec![0, 3, 3]);
-        assert_eq!(tiny_graph.adjacencies(2), vec![]);
-        assert_eq!(tiny_graph.adjacencies(3), vec![1, 1]);
+        let tiny = Undirected::new_from_file("./texts/very-tiny-graph.txt");
+        assert_eq!(tiny.vertices(), 4);
+        assert_eq!(tiny.edges(), 4);
+        assert_eq!(tiny.adjacencies(0), vec![1, 0, 0]);
+        assert_eq!(tiny.adjacencies(1), vec![0, 3, 3]);
+        assert_eq!(tiny.adjacencies(2), vec![]);
+        assert_eq!(tiny.adjacencies(3), vec![1, 1]);
     }
 }
