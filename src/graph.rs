@@ -1,5 +1,11 @@
 use std::fs;
 
+fn read_unsigned(maybe_integer: &str) -> usize {
+    maybe_integer.parse().expect(
+        format!("cannot parse usize from '{}'", maybe_integer).as_str()
+    )
+}
+
 pub struct Graph {
     vertices: usize,
     edges: usize,
@@ -37,19 +43,37 @@ impl Graph {
         graph
     }
 
+    pub fn vertices(&self) -> usize {
+        self.vertices
+    }
+
+    pub fn edges(&self) -> usize {
+        self.edges
+    }
+
     pub fn add_edge(&mut self, from: usize, to: usize) {
         self.adjacencies[from].push(to);
         self.adjacencies[to].push(from);
         self.edges += 1;
     }
-}
 
-fn read_unsigned(maybe_integer: &str) -> usize {
-    maybe_integer.parse().expect(
-        format!("cannot parse usize from '{}'", maybe_integer).as_str()
-    )
+    pub fn adjacencies(&self, vertex: usize) -> &[usize] {
+        &self.adjacencies[vertex]
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    
+    #[test]
+    fn read_graph_from_file() {
+        let tiny_graph = Graph::new_from_file("./texts/very-tiny-graph.txt");
+        assert_eq!(tiny_graph.vertices(), 4);
+        assert_eq!(tiny_graph.edges(), 4);
+        assert_eq!(tiny_graph.adjacencies(0), vec![1, 0, 0]);
+        assert_eq!(tiny_graph.adjacencies(1), vec![0, 3, 3]);
+        assert_eq!(tiny_graph.adjacencies(2), vec![]);
+        assert_eq!(tiny_graph.adjacencies(3), vec![1, 1]);
+    }
 }
