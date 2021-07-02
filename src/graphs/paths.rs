@@ -7,7 +7,7 @@ pub struct Path {
 }
 
 impl Path {
-    pub fn new(source: usize, graph: &Undirected) -> Path {
+    pub fn new(graph: &Undirected, source: usize) -> Path {
         let mut path = Path {
             source,
             marked: vec![false; graph.vertices()],
@@ -57,9 +57,32 @@ impl Path {
 
             traveler = self.came_from[traveler].unwrap();
         }
+
         path.push(self.source);
 
-        return Some(path);
+        // The call to into_iter() consumes 'path'.
+        let reverse = path.into_iter().rev().collect();
+
+        return Some(reverse);
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn depth_first_search() {
+        let tiny = Undirected::new_from_file("./texts/tiny-graph.txt");
+        let meander = Path::new(&tiny, 0);
+
+        assert!(meander.has_path_to(0));
+        assert_eq!(meander.path_to(0), Some(vec![0]));
+
+        assert!(meander.has_path_to(3));
+        assert_eq!(meander.path_to(3), Some(vec![0, 6, 4, 5, 3]));
+
+        assert!(!meander.has_path_to(8));
+        assert_eq!(meander.path_to(8), None);
+    }
+}

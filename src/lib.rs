@@ -1,1 +1,1 @@
-mod graphs;
+pub mod graphs;
