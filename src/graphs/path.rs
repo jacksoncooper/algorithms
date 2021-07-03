@@ -1,3 +1,5 @@
+use std::collections;
+
 use crate::graphs::undirected::Undirected;
 
 pub struct Path {
@@ -6,29 +8,48 @@ pub struct Path {
     came_from: Vec<Option<usize>>,
 }
 
+enum Traversal {
+    Depth,
+    Breadth
+}
+
 impl Path {
-    pub fn new(graph: &Undirected, source: usize) -> Path {
+    pub fn new_using_depth(graph: &Undirected, source: usize) -> Path {
+        Path::new(graph, source, Traversal::Depth)
+    }
+
+    pub fn new_using_breadth(graph: &Undirected, source: usize) -> Path {
+        Path::new(graph, source, Traversal::Breadth)
+    }
+
+    fn new(graph: &Undirected, source: usize, traversal: Traversal) -> Path {
         let mut path = Path {
             source,
             marked: vec![false; graph.vertices()],
             came_from: vec![None; graph.vertices()],
         };
 
-        let mut to_explore: Vec<usize> = Vec::new();
-        to_explore.push(source);
+        let mut to_explore = collections::VecDeque::new();
+        to_explore.push_back(source);
 
         // Depth-first search is usually expressed with recursion, but I think
         // the explicit stack makes its behavior more obvious. The vertices
         // most recently discovered are explored first.
 
         while !to_explore.is_empty() {
-            // Safe to unwrap a nonempty vector. A panic here is a logic error.
-            let from: usize = to_explore.pop().unwrap();
+            let from = match traversal {
+                Traversal::Depth => to_explore.pop_back(),
+                Traversal::Breadth => to_explore.pop_front(),
+            };
+
+            // Safe to unwrap a nonempty deque. A panic here is a logic error.
+            let from = from.unwrap();
+
             path.marked[from] = true;
             for &to in graph.adjacencies(from) {
                 if !path.marked[to] {
                     path.came_from[to] = Some(from);
-                    to_explore.push(to);
+                    to_explore.push_back(to);
                 }
             }
         }
@@ -74,13 +95,28 @@ mod tests {
     #[test]
     fn depth_first_search() {
         let tiny = Undirected::new_from_file("./texts/tiny-graph.txt");
-        let meander = Path::new(&tiny, 0);
+        let meander = Path::new_using_depth(&tiny, 0);
 
         assert!(meander.has_path_to(0));
         assert_eq!(meander.path_to(0), Some(vec![0]));
 
         assert!(meander.has_path_to(3));
         assert_eq!(meander.path_to(3), Some(vec![0, 6, 4, 5, 3]));
+
+        assert!(!meander.has_path_to(8));
+        assert_eq!(meander.path_to(8), None);
+    }
+
+    #[test]
+    fn breadth_first_search() {
+        let tiny = Undirected::new_from_file("./texts/tiny-graph.txt");
+        let meander = Path::new_using_breadth(&tiny, 0);
+
+        assert!(meander.has_path_to(0));
+        assert_eq!(meander.path_to(0), Some(vec![0]));
+
+        assert!(meander.has_path_to(3));
+        assert_eq!(meander.path_to(3), Some(vec![0, 6, 4, 3]));
 
         assert!(!meander.has_path_to(8));
         assert_eq!(meander.path_to(8), None);

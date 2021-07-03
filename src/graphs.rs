@@ -1,2 +1,2 @@
 pub mod undirected;
-pub mod paths;
+pub mod path;
