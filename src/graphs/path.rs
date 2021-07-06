@@ -1,6 +1,6 @@
 use std::collections;
 
-use crate::graphs::undirected::Undirected;
+use crate::graphs::Graph;
 
 pub struct Path {
     source: usize,
@@ -14,15 +14,15 @@ enum Traversal {
 }
 
 impl Path {
-    pub fn new_using_depth(graph: &Undirected, source: usize) -> Path {
+    pub fn new_using_depth(graph: &Graph, source: usize) -> Path {
         Path::new(graph, source, Traversal::Depth)
     }
 
-    pub fn new_using_breadth(graph: &Undirected, source: usize) -> Path {
+    pub fn new_using_breadth(graph: &Graph, source: usize) -> Path {
         Path::new(graph, source, Traversal::Breadth)
     }
 
-    fn new(graph: &Undirected, source: usize, traversal: Traversal) -> Path {
+    fn new(graph: &Graph, source: usize, traversal: Traversal) -> Path {
         let mut path = Path {
             source,
             marked: vec![false; graph.vertices()],
@@ -94,7 +94,7 @@ mod tests {
 
     #[test]
     fn depth_first_search() {
-        let tiny = Undirected::new_from_file("./texts/tiny-graph.txt");
+        let tiny = Graph::new_undirected_from_file("./texts/tiny-graph.txt");
         let meander = Path::new_using_depth(&tiny, 0);
 
         assert!(meander.has_path_to(0));
@@ -109,7 +109,7 @@ mod tests {
 
     #[test]
     fn breadth_first_search() {
-        let tiny = Undirected::new_from_file("./texts/tiny-graph.txt");
+        let tiny = Graph::new_undirected_from_file("./texts/tiny-graph.txt");
         let meander = Path::new_using_breadth(&tiny, 0);
 
         assert!(meander.has_path_to(0));
