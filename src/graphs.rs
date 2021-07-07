@@ -90,6 +90,21 @@ impl Graph {
         &self.adjacencies[vertex]
     }
 
+    pub fn reverse(&self) -> Graph {
+        match self.prefix {
+            Prefix::Undirected => panic!("cannot reverse undirected graph"),
+            Prefix::Directed => {
+                let mut reverse = Graph::new_directed(self.vertices());
+                for vertex in 0..self.vertices() {
+                    for &adjacency in self.adjacencies(vertex) {
+                        reverse.add_edge(adjacency, vertex);
+                    }
+                }
+                reverse
+            }
+        }
+    }
+
     fn is_undirected(&self) -> bool {
         match self.prefix {
             Prefix::Undirected => true,
@@ -111,5 +126,20 @@ mod tests {
         assert_eq!(tiny.adjacencies(1), vec![0, 3, 3]);
         assert_eq!(tiny.adjacencies(2), vec![]);
         assert_eq!(tiny.adjacencies(3), vec![1, 1]);
+    }
+
+    #[test]
+    fn reverse_directed() {
+        let mut tiny = Graph::new_directed(4);
+        tiny.add_edge(0, 1);
+        tiny.add_edge(1, 3);
+        tiny.add_edge(3, 1);
+        tiny.add_edge(3, 3);
+
+        let reverse = tiny.reverse();
+        assert_eq!(reverse.adjacencies(0), vec![]);
+        assert_eq!(reverse.adjacencies(1), vec![0, 3]);
+        assert_eq!(reverse.adjacencies(2), vec![]);
+        assert_eq!(reverse.adjacencies(3), vec![1, 3]);
     }
 }
