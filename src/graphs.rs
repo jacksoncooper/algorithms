@@ -1,3 +1,8 @@
+// TODO: This implementation is kind of leaky. Vertex values should not be
+// required to be integers in the range [0, V) just because these are
+// convenient to map a usize to a usize using a vector.
+
+pub mod cycle;
 pub mod path;
 
 use std::fs;
@@ -28,7 +33,7 @@ impl Graph {
     pub fn new_directed(vertices: usize) -> Graph {
         return Graph::new(Prefix::Directed, vertices);
     }
-    
+
     pub fn new_undirected_from_file(filename: &str) -> Graph {
         return Graph::new_from_file(Prefix::Undirected, filename);
     }
@@ -39,7 +44,7 @@ impl Graph {
 
     fn new(prefix: Prefix, vertices: usize) -> Graph {
         Graph {
-            prefix, 
+            prefix,
             vertices,
             edges: 0,
             adjacencies: vec![Vec::new(); vertices]
